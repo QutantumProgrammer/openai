@@ -73,11 +73,16 @@ wss.on('connection', function (ws, request) {
   ws.on('error', console.error);
 
   ws.on('message', async function (message) {
-    const doneMarkStr = await send(JSON.parse(message.toString()), (data) => {
-      ws.send(data);
-    });
-    ws.send(doneMarkStr);
-
+    try {
+      const doneMarkStr = await send(JSON.parse(message.toString()), (data) => {
+        ws.send(data);
+      });
+      ws.send(doneMarkStr);
+    } catch (err) {
+      ws.send('[>_START]');
+      ws.send('openai run out of money');
+      ws.send('[DONE_<]');
+    }
   });
 
   ws.on('close', function () {
