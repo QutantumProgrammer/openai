@@ -2,8 +2,10 @@ const session = require('express-session');
 const express = require('express');
 const http = require('http');
 const uuid = require('uuid');
-const { WebSocketServer } = require('ws');
-const { send } = require('./openai');
+const {WebSocketServer} = require('ws');
+const {send} = require('./openai');
+const {getAudioStreamFromText} = require('./audio');
+const {Blob} = require('buffer');
 
 const PORT = 3000;
 const sessionSecret = 'cyrus-openai';
@@ -18,7 +20,7 @@ function onSocketError(err) {
 const sessionParser = session({
   saveUninitialized: false,
   secret: sessionSecret,
-  resave: false
+  resave: false,
 });
 
 app.use('/', express.static('pages'));
@@ -30,7 +32,7 @@ app.post('/login', function (req, res) {
 
   console.log(`Updating session for user ${id}`);
   req.session.userId = id;
-  res.send({ result: 'OK', message: 'Session updated' });
+  res.send({result: 'OK', message: 'Session updated'});
 });
 
 app.delete('/logout', function (request, response) {
@@ -40,12 +42,20 @@ app.delete('/logout', function (request, response) {
   request.session.destroy(function () {
     if (ws) ws.close();
 
-    response.send({ result: 'OK', message: 'Session destroyed' });
+    response.send({result: 'OK', message: 'Session destroyed'});
   });
 });
 
-app.get('/test', (req, res) => {
-  res.send('Hello World!');
+app.get('/getAudio', (req, res) => {
+  getAudioStreamFromText(req.query.text).then((fileArrayBuffer) => {
+
+    res.set({
+      'Content-Type': 'audio/wav',
+      'Content-Length': fileArrayBuffer.byteLength,
+    });
+    res.send(Buffer.from(fileArrayBuffer));
+  });
+
 });
 
 const server = http.createServer(app);

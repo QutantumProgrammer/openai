@@ -3,7 +3,7 @@ let onmessageHolder;
 
 function init() {
   return new Promise(resolve => {
-    wsInstance = new WebSocket('ws://149.28.124.105:3000');
+    wsInstance = new WebSocket(`ws://${location.host}`);
 
     wsInstance.onopen = () => {
       console.log('ws open');
@@ -11,6 +11,7 @@ function init() {
     };
 
     wsInstance.onclose = () => {
+      wsInstance = undefined;
       console.log('ws close');
     };
 
@@ -26,7 +27,6 @@ export async function send(msg, onmessage) {
   try {
     wsInstance.send(msg);
   } catch (err) {
-    await init();
-    wsInstance.send(msg);
+    console.log(err);
   }
 }

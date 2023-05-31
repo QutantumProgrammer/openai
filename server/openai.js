@@ -1,13 +1,13 @@
-const { ChatCompletionRequestMessageRoleEnum, Configuration, OpenAIApi } = require("openai");
+const {Configuration, OpenAIApi} = require('openai');
 
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
 const send = async (messages, onDataMessage) => {
   const completion = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
+    model: 'gpt-3.5-turbo',
     messages,
     stream: true,
   }, {

@@ -1,21 +1,33 @@
 import { send } from './ws.js';
-import keyDirective from './keyDirective.js';
+import { splitRead, readImmediately } from './splitRead.js';
+import { switchMute } from './reader.js';
 
-if (localStorage.getItem('__milk') === '1') {
-  document.querySelector('#cover')?.remove();
-}
+const ENABLE_READ_MARK = '__ENABLE_READ';
 
-keyDirective.listenKeys([54, 53, 53, 51, 54], () => {
-  document.querySelector('#cover')?.remove();
-  localStorage.setItem('__milk', '1');
-});
+let enableRead = localStorage.getItem(ENABLE_READ_MARK) === '1';
+if (enableRead) document.querySelector('.sound').classList.remove('mute');
+
 
 const loginPromise = fetch('/login', {
   method: 'POST',
 });
 
 let chats = [];
-let chating = false;
+let chatting = false;
+
+document.querySelector('.sound').addEventListener('click', () => {
+  if (enableRead) {
+    document.querySelector('.sound').classList.add('mute');
+    localStorage.setItem(ENABLE_READ_MARK, null);
+    switchMute(true);
+  } else {
+    document.querySelector('.sound').classList.remove('mute');
+    localStorage.setItem(ENABLE_READ_MARK, '1');
+    switchMute(false);
+  }
+
+  enableRead = !enableRead;
+});
 
 function addUserRow(inputValue) {
   const rowNode = document.createElement('div');
@@ -53,7 +65,7 @@ function addAssistantRow() {
       setTimeout(() => {
         cursorNode.remove();
       }, 1000);
-    }
+    },
   };
 }
 
@@ -64,10 +76,10 @@ document.querySelector('#userInput').addEventListener('keydown', (event) => {
 });
 
 document.querySelector('#send').addEventListener('click', async () => {
-  if (chating) return;
+  if (chatting) return;
 
-  chating = true;
-  document.querySelector('.content-wrapper').classList.add('chating');
+  chatting = true;
+  document.querySelector('.content-wrapper').classList.add('chatting');
 
   await loginPromise;
   const value = document.querySelector('#userInput').value;
@@ -87,17 +99,26 @@ document.querySelector('#send').addEventListener('click', async () => {
     if ('[>_START]' === event.data) {
       assistantRowHandler = addAssistantRow();
       return;
-    };
+    }
 
     if ('[DONE_<]' === event.data) {
       chats.push({
         role: 'assistant',
         content: replyText,
       });
-      chating = false;
-      document.querySelector('.content-wrapper').classList.remove('chating');
+
+      if (enableRead) {
+        readImmediately();
+      }
+
+      chatting = false;
+      document.querySelector('.content-wrapper').classList.remove('chatting');
       assistantRowHandler.removeCursor();
       return;
+    }
+
+    if (enableRead) {
+      splitRead(event.data);
     }
 
     replyText += event.data;
