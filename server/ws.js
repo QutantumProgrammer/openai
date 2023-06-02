@@ -1,9 +1,9 @@
-const {WebSocketServer} = require('ws');
-const {send} = require('./openai');
-const {server} = require('./app');
-const {sessionParser} = require('./session');
+import { WebSocketServer } from 'ws';
+import { send } from './openai.js';
+import { server } from './app.js';
+import { sessionParser } from './session.js';
 
-const wsMap = new Map();
+export const wsMap = new Map();
 server.on('upgrade', function (request, socket, head) {
   socket.on('error', onSocketError);
 
@@ -60,5 +60,3 @@ wss.on('connection', function (ws, request) {
     wsMap.delete(userId);
   });
 });
-
-module.exports.wsMap = wsMap;

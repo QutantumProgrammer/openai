@@ -1,10 +1,10 @@
-const sdk = require('microsoft-cognitiveservices-speech-sdk');
+import sdk from 'microsoft-cognitiveservices-speech-sdk';
 
 const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.SPEECH_KEY, process.env.SPEECH_REGION);
 
 speechConfig.speechSynthesisVoiceName = 'zh-CN-YunxiNeural';
 
-async function getAudioStreamFromText(text) {
+export async function getAudioStreamFromText(text) {
 
   // speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio48Khz192KBitRateMonoMp3;
   const speechSynthesizer = new sdk.SpeechSynthesizer(speechConfig, null);
@@ -23,5 +23,3 @@ async function getAudioStreamFromText(text) {
       });
   })
 }
-
-module.exports.getAudioStreamFromText = getAudioStreamFromText;

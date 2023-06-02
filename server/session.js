@@ -1,14 +1,12 @@
-const session = require('express-session');
-const {app} = require('./app');
+import session from 'express-session';
+import { app } from './app.js';
 
 const sessionSecret = 'cyrus-openai';
 
-const sessionParser = session({
+export const sessionParser = session({
   saveUninitialized: false,
   secret: sessionSecret,
   resave: false,
 });
 
 app.use(sessionParser);
-
-module.exports.sessionParser = sessionParser; 

@@ -1,11 +1,11 @@
-const {Configuration, OpenAIApi} = require('openai');
+import { Configuration, OpenAIApi } from 'openai';
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
-const send = async (messages, onDataMessage) => {
+export const send = async (messages, onDataMessage) => {
   const completion = await openai.createChatCompletion({
     model: 'gpt-3.5-turbo',
     messages,
@@ -53,5 +53,3 @@ const send = async (messages, onDataMessage) => {
 
   return donePromise;
 };
-
-module.exports.send = send;

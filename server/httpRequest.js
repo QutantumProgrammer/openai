@@ -1,7 +1,8 @@
-const {getAudioStreamFromText} = require('./audio');
-const uuid = require('uuid');
-const {app} = require('./app');
-const {wsMap} = require('./ws');
+import * as uuid from 'uuid';
+import { getAudioStreamFromText } from './audio.js';
+import { app } from './app.js';
+import { wsMap } from './ws.js';
+
 app.post('/login', function (req, res) {
   const id = uuid.v4();
 
