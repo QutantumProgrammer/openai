@@ -7,7 +7,7 @@ const openai = new OpenAIApi(configuration);
 
 export const send = async (messages, onDataMessage) => {
   const completion = await openai.createChatCompletion({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4-1106-preview',
     messages,
     stream: true,
   }, {
@@ -16,8 +16,15 @@ export const send = async (messages, onDataMessage) => {
 
   let doneResolver;
   const donePromise = new Promise(resolve => doneResolver = resolve);
-  completion.data.on('data', (data) => {
+  let cacheHalfDataFromOpenai = '';
+  completion.data.on('data', (originalData) => {
+    let data = originalData;
     try {
+      if (cacheHalfDataFromOpenai) {
+        data = `${cacheHalfDataFromOpenai}${originalData}`
+      }
+      console.log('data-:', data.toString());
+      console.log('=============');
       const stringDataList = data
         .toString()
         .split('\n')
@@ -33,6 +40,8 @@ export const send = async (messages, onDataMessage) => {
           return result;
         });
 
+      cacheHalfDataFromOpenai = '';
+
       stringDataList.forEach(dataItem => {
         if (dataItem?.choices?.[0]?.delta?.role === 'assistant') {
           onDataMessage('[>_START]');
@@ -46,6 +55,7 @@ export const send = async (messages, onDataMessage) => {
         onDataMessage(dataItem.choices?.[0]?.delta?.content);
       });
     } catch (error) {
+      cacheHalfDataFromOpenai = originalData;
       console.log('err', error);
     }
 

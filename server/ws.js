@@ -45,13 +45,15 @@ wss.on('connection', function (ws, request) {
 
   ws.on('message', async function (message) {
     try {
+      console.log('ws.js: ', message.toString())
       const doneMarkStr = await send(JSON.parse(message.toString()), (data) => {
         ws.send(data);
       });
       ws.send(doneMarkStr);
     } catch (err) {
+      console.log('error:', err);
       ws.send('[>_START]');
-      ws.send('openai run out of money');
+      ws.send('system error');
       ws.send('[DONE_<]');
     }
   });

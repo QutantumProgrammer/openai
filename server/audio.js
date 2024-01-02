@@ -1,13 +1,21 @@
-import sdk from 'microsoft-cognitiveservices-speech-sdk';
+import {
+  SpeechConfig,
+  SpeechSynthesizer,
+} from 'microsoft-cognitiveservices-speech-sdk';
 
-const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.SPEECH_KEY, process.env.SPEECH_REGION);
+const speechConfig = SpeechConfig.fromSubscription(process.env.SPEECH_KEY, process.env.SPEECH_REGION);
 
 speechConfig.speechSynthesisVoiceName = 'zh-CN-YunxiNeural';
+// speechConfig.speechSynthesisVoiceName = 'zh-CN-liaoning-YunbiaoNeural';
+// speechConfig.speechSynthesisVoiceName = 'zh-CN-henan-YundengNeural';
+// speechConfig.speechSynthesisVoiceName = 'zh-HK-WanLungNeural';
+// speechConfig.speechSynthesisVoiceName = 'zh-TW-HsiaoChenNeural';
+// speechConfig.speechSynthesisVoiceName = 'zh-CN-guangxi-YunqiNeural';
 
 export async function getAudioStreamFromText(text) {
 
   // speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio48Khz192KBitRateMonoMp3;
-  const speechSynthesizer = new sdk.SpeechSynthesizer(speechConfig, null);
+  const speechSynthesizer = new SpeechSynthesizer(speechConfig, null);
 
   return new Promise((resolve, reject) => {
     speechSynthesizer.speakTextAsync(
